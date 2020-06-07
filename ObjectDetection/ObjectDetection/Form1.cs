@@ -64,30 +64,24 @@ namespace ObjectDetection
         private async void button1_Click(object sender, EventArgs e)
         {
             string resp = await MakePredictionRequest(openFileDialog1.FileName, predictURL.Text, predictKEY.Text);
-            //responseBox.AppendText(resp);
             PredictResponse predictObject = JsonConvert.DeserializeObject<PredictResponse>(resp);
-            string maxTag = "";
-            float maxProb = 0;
-            Boundingbox maxBound = new Boundingbox();
-            foreach (Prediction preObj in predictObject.predictions) 
+            float gainProb = 0.5F;
+            Image outImage = (Image)inputImage.Image.Clone();
+            responseBox.Text = "";
+            Graphics gr = Graphics.FromImage(outImage);
+            foreach (Prediction preObj in predictObject.predictions)
             {
-                if(preObj.probability > maxProb)
+                if (preObj.probability > gainProb)
                 {
-                    maxTag = preObj.tagName;
-                    maxProb = preObj.probability;
-                    maxBound = preObj.boundingBox;
+                    responseBox.AppendText("Tag :" + preObj.tagName + "  , ");
+                    responseBox.AppendText("Prob:" + preObj.probability + System.Environment.NewLine);
+                    //responseBox.AppendText("Left:" + (preObj.boundingBox.left * outImage.Width) + System.Environment.NewLine);
+                    //responseBox.AppendText("Left:" + (preObj.boundingBox.top * outImage.Height) + System.Environment.NewLine);
+                    //responseBox.AppendText("Left:" + (preObj.boundingBox.width * outImage.Width) + System.Environment.NewLine);
+                    //responseBox.AppendText("Left:" + (preObj.boundingBox.height * outImage.Height) + System.Environment.NewLine);
+                    gr.DrawRectangle(new Pen(Color.White, 5), preObj.boundingBox.left * outImage.Width, preObj.boundingBox.top * outImage.Height, preObj.boundingBox.width * outImage.Width, preObj.boundingBox.height * outImage.Height);
                 }
             }
-            responseBox.Text = "";
-            Image outImage = (Image)inputImage.Image.Clone();
-            responseBox.AppendText("Tag :" + maxTag + System.Environment.NewLine);
-            responseBox.AppendText("Prob:" + maxProb + System.Environment.NewLine);
-            responseBox.AppendText("Left:" + (maxBound.left * outImage.Width) + System.Environment.NewLine);
-            responseBox.AppendText("Left:" + (maxBound.top * outImage.Height) + System.Environment.NewLine);
-            responseBox.AppendText("Left:" + (maxBound.width * outImage.Width) + System.Environment.NewLine);
-            responseBox.AppendText("Left:" + (maxBound.height * outImage.Height) + System.Environment.NewLine);
-            Graphics gr = Graphics.FromImage(outImage);
-            gr.DrawRectangle(new Pen(Color.White,10), maxBound.left*outImage.Width, maxBound.top * outImage.Height, maxBound.width * outImage.Width, maxBound.height * outImage.Height);
             outputImage.Image = outImage;
         }
     }

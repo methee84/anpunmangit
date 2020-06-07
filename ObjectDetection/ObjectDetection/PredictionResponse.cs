@@ -31,4 +31,10 @@ namespace ObjectDetection
         public float width { get; set; }
         public float height { get; set; }
     }
+
+    public class DetectPattern
+    {
+        public string PatternName { get; set; }
+        public string[] TagSet { get; set; }
+    }
 }
